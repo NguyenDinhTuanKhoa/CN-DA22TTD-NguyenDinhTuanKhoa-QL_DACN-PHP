@@ -7,6 +7,7 @@ Hệ thống quản lý đồ án chuyên ngành được phát triển bằng P
 
 ## Cấu trúc thư mục
 - `src/` - Mã nguồn chính của dự án
+- `thesis/` - Tài liệu đồ án (Word, PowerPoint)
 
 ## Cài đặt
 1. Clone repository
