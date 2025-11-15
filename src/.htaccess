@@ -1,0 +1,11 @@
+Options -Indexes
+
+RewriteEngine On
+
+# Nếu URL là gốc thì chuyển hướng đến public/
+RewriteCond %{REQUEST_URI} ^/PHP-CN/?$
+RewriteRule ^$ /PHP-CN/public/ [L,R=302]
+
+# Chuyển hướng tất cả request đến thư mục public
+RewriteCond %{REQUEST_URI} !^/PHP-CN/public/
+RewriteRule ^(.*)$ /PHP-CN/public/$1 [L]
