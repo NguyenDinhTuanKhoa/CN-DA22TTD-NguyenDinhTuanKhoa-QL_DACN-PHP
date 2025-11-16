@@ -54,9 +54,13 @@ class TeacherController extends Controller {
         $teacherId = $this->checkTeacherSession();
         
         $topicModel = $this->model('Topic');
+        $timeModel = $this->model('TimeSetting');
+        
         $data = [
             'title' => 'Quản lý đề tài',
-            'topics' => $topicModel->getByTeacherId($teacherId)
+            'topics' => $topicModel->getByTeacherId($teacherId),
+            'can_create' => $timeModel->isFeatureEnabled('topic_creation'),
+            'creation_time' => $timeModel->getByType('topic_creation')
         ];
         
         $this->view('teacher/topics', $data);
@@ -64,6 +68,14 @@ class TeacherController extends Controller {
     
     public function createTopic() {
         $teacherId = $this->checkTeacherSession();
+        
+        // Kiểm tra thời gian được phép tạo đề tài
+        $timeModel = $this->model('TimeSetting');
+        if (!$timeModel->isFeatureEnabled('topic_creation')) {
+            $_SESSION['error'] = 'Chức năng tạo đề tài hiện đang bị khóa hoặc chưa đến thời gian!';
+            header('Location: /PHP-CN/public/teacher/topics');
+            exit;
+        }
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $topicModel = $this->model('Topic');

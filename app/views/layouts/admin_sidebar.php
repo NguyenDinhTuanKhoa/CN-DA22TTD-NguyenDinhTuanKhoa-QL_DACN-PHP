@@ -17,6 +17,9 @@
         <a class="nav-link text-white" href="/PHP-CN/public/admin/timeSettings">
             <i class="bi bi-clock-history"></i> Cài đặt thời gian
         </a>
+        <a class="nav-link text-white" href="/PHP-CN/public/admin/submissions">
+            <i class="bi bi-file-earmark-check"></i> Tổng hợp bài nộp
+        </a>
         <hr class="border-secondary">
         <a class="nav-link text-danger" href="/PHP-CN/public/logout">
             <i class="bi bi-box-arrow-right"></i> Đăng xuất

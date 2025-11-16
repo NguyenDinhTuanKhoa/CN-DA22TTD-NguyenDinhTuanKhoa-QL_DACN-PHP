@@ -102,4 +102,9 @@ class Topic {
         ");
         return $stmt->execute([$topicId]);
     }
+    
+    public function updateStatus($topicId, $status) {
+        $stmt = $this->db->prepare("UPDATE topics SET status = ? WHERE topic_id = ?");
+        return $stmt->execute([$status, $topicId]);
+    }
 }

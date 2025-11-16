@@ -55,13 +55,17 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS time_settings (
     setting_id INT AUTO_INCREMENT PRIMARY KEY,
     setting_name VARCHAR(100) NOT NULL,
+    setting_type ENUM('topic_creation', 'topic_registration', 'progress_report', 'submission') NOT NULL DEFAULT 'topic_creation' COMMENT 'Loại cài đặt thời gian',
     start_date DATETIME NOT NULL,
     end_date DATETIME NOT NULL,
     description TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
+    is_active TINYINT(1) DEFAULT 1 COMMENT '1=Mở, 0=Khóa',
+    auto_lock TINYINT(1) DEFAULT 1 COMMENT 'Tự động khóa khi hết hạn',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     -- Indexes
+    INDEX idx_setting_type (setting_type),
     INDEX idx_is_active (is_active),
     INDEX idx_dates (start_date, end_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -415,11 +419,11 @@ INSERT INTO topics (teacher_id, title, description, requirements, max_students, 
 -- ============================================
 -- DỮ LIỆU CÀI ĐẶT THỜI GIAN
 -- ============================================
-INSERT INTO time_settings (setting_name, start_date, end_date, description, is_active) VALUES
-('Thời gian ra đề tài', '2024-01-01 00:00:00', '2024-01-31 23:59:59', 'Giảng viên có thể tạo và chỉnh sửa đề tài trong khoảng thời gian này', 0),
-('Thời gian đăng ký đề tài', '2024-01-15 00:00:00', '2024-02-15 23:59:59', 'Sinh viên có thể đăng ký đề tài trong khoảng thời gian này', 1),
-('Thời gian báo cáo tiến độ', '2024-01-22 00:00:00', '2024-03-15 23:59:59', 'Sinh viên cập nhật báo cáo tiến độ 4 tuần', 1),
-('Thời gian nộp bài', '2024-03-01 00:00:00', '2024-03-31 23:59:59', 'Sinh viên nộp bài đồ án cuối kỳ', 1)
+INSERT INTO time_settings (setting_name, setting_type, start_date, end_date, description, is_active, auto_lock) VALUES
+('Thời gian ra đề tài', 'topic_creation', '2024-01-01 00:00:00', '2024-01-31 23:59:59', 'Giảng viên có thể tạo và chỉnh sửa đề tài trong khoảng thời gian này', 1, 1),
+('Thời gian đăng ký đề tài', 'topic_registration', '2024-01-15 00:00:00', '2024-02-15 23:59:59', 'Sinh viên có thể đăng ký đề tài trong khoảng thời gian này', 1, 1),
+('Thời gian báo cáo tiến độ', 'progress_report', '2024-01-22 00:00:00', '2024-03-15 23:59:59', 'Sinh viên cập nhật báo cáo tiến độ 4 tuần', 1, 1),
+('Thời gian nộp bài', 'submission', '2024-03-01 00:00:00', '2024-03-31 23:59:59', 'Sinh viên nộp bài đồ án cuối kỳ', 1, 1)
 ON DUPLICATE KEY UPDATE setting_name=setting_name;
 
 -- ============================================

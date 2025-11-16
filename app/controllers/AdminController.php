@@ -146,20 +146,139 @@ class AdminController extends Controller {
     }
     
     public function timeSettings() {
+        $this->checkAdminSession();
         $timeModel = $this->model('TimeSetting');
+        
+        // Tự động khóa các chức năng hết hạn (tạm thời bỏ qua để tránh lỗi)
+        // $timeModel->autoLockExpired();
+        
         $data = [
             'title' => 'Cài đặt thời gian',
             'settings' => $timeModel->getAll()
         ];
+        
         $this->view('admin/time_settings', $data);
     }
     
+    public function createTimeSetting() {
+        $this->checkAdminSession();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $timeModel = $this->model('TimeSetting');
+            $result = $timeModel->create($_POST);
+            
+            if ($result) {
+                $_SESSION['success'] = 'Thêm cài đặt thời gian thành công!';
+            } else {
+                $_SESSION['error'] = 'Có lỗi xảy ra!';
+            }
+            
+            header('Location: /PHP-CN/public/admin/timeSettings');
+            exit;
+        }
+    }
+    
+    public function editTimeSetting($id) {
+        $this->checkAdminSession();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $timeModel = $this->model('TimeSetting');
+            $result = $timeModel->update($id, $_POST);
+            
+            if ($result) {
+                $_SESSION['success'] = 'Cập nhật thành công!';
+            } else {
+                $_SESSION['error'] = 'Có lỗi xảy ra!';
+            }
+            
+            header('Location: /PHP-CN/public/admin/timeSettings');
+            exit;
+        }
+    }
+    
+    public function toggleTimeSetting($id) {
+        $this->checkAdminSession();
+        $timeModel = $this->model('TimeSetting');
+        
+        $result = $timeModel->toggleActive($id);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Đã thay đổi trạng thái!';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra!';
+        }
+        
+        header('Location: /PHP-CN/public/admin/timeSettings');
+        exit;
+    }
+    
+    public function deleteTimeSetting($id) {
+        $this->checkAdminSession();
+        $timeModel = $this->model('TimeSetting');
+        
+        $result = $timeModel->delete($id);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Xóa thành công!';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra!';
+        }
+        
+        header('Location: /PHP-CN/public/admin/timeSettings');
+        exit;
+    }
+    
     public function topics() {
+        $this->checkAdminSession();
         $topicModel = $this->model('Topic');
         $data = [
             'title' => 'Quản lý đề tài',
             'topics' => $topicModel->getAll()
         ];
         $this->view('admin/topics', $data);
+    }
+    
+    public function submissions() {
+        $this->checkAdminSession();
+        $submissionModel = $this->model('Submission');
+        
+        $data = [
+            'title' => 'Tổng hợp bài nộp',
+            'submissions' => $submissionModel->getAllWithDetails()
+        ];
+        
+        $this->view('admin/submissions', $data);
+    }
+    
+    public function approveTopic($topicId) {
+        $this->checkAdminSession();
+        $topicModel = $this->model('Topic');
+        
+        $result = $topicModel->updateStatus($topicId, 'approved');
+        
+        if ($result) {
+            $_SESSION['success'] = 'Đã duyệt đề tài thành công!';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra khi duyệt đề tài!';
+        }
+        
+        header('Location: /PHP-CN/public/admin/topics');
+        exit;
+    }
+    
+    public function rejectTopic($topicId) {
+        $this->checkAdminSession();
+        $topicModel = $this->model('Topic');
+        
+        $result = $topicModel->updateStatus($topicId, 'rejected');
+        
+        if ($result) {
+            $_SESSION['success'] = 'Đã từ chối đề tài!';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra!';
+        }
+        
+        header('Location: /PHP-CN/public/admin/topics');
+        exit;
     }
 }

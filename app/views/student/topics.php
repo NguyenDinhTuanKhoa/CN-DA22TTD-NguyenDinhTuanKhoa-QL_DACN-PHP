@@ -7,6 +7,27 @@
         <div class="container-fluid">
             <h2 class="mb-4">Danh sách đề tài</h2>
             
+            <?php if (!$data['can_register']): ?>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Chức năng đăng ký đề tài hiện đang bị khóa!</strong>
+                    <?php if ($data['registration_time']): ?>
+                        <br>Thời gian đăng ký: 
+                        <?= date('d/m/Y H:i', strtotime($data['registration_time']['start_date'])) ?> - 
+                        <?= date('d/m/Y H:i', strtotime($data['registration_time']['end_date'])) ?>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <?php if ($data['registration_time']): ?>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Sinh viên có thể đăng ký đề tài trong khoảng thời gian này
+                        <br><strong>Bắt đầu:</strong> <?= date('d/m/Y H:i', strtotime($data['registration_time']['start_date'])) ?>
+                        <br><strong>Kết thúc:</strong> <?= date('d/m/Y H:i', strtotime($data['registration_time']['end_date'])) ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+            
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="alert alert-success alert-dismissible fade show">
                     <?= $_SESSION['success']; unset($_SESSION['success']); ?>
@@ -59,9 +80,13 @@
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php if ($topic['current_students'] < $topic['max_students'] && $topic['status'] === 'approved'): ?>
+                                                <?php if ($topic['current_students'] < $topic['max_students'] && $topic['status'] === 'approved' && $data['can_register']): ?>
                                                     <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#registerModal<?= $topic['topic_id'] ?>">
                                                         <i class="bi bi-plus-circle"></i> Đăng ký
+                                                    </button>
+                                                <?php elseif (!$data['can_register']): ?>
+                                                    <button class="btn btn-sm btn-secondary" disabled title="Chức năng đăng ký đang bị khóa">
+                                                        <i class="bi bi-lock"></i> Đã khóa
                                                     </button>
                                                 <?php else: ?>
                                                     <button class="btn btn-sm btn-secondary" disabled>

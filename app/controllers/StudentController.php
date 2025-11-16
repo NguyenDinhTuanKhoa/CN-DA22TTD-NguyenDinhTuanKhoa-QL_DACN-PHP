@@ -31,10 +31,13 @@ class StudentController extends Controller {
     public function topics() {
         $this->checkStudentSession();
         $topicModel = $this->model('Topic');
+        $timeModel = $this->model('TimeSetting');
         
         $data = [
             'title' => 'Danh sách đề tài',
-            'topics' => $topicModel->getAllWithTeacher()
+            'topics' => $topicModel->getAllWithTeacher(),
+            'can_register' => $timeModel->isFeatureEnabled('topic_registration'),
+            'registration_time' => $timeModel->getByType('topic_registration')
         ];
         
         $this->view('student/topics', $data);
@@ -42,6 +45,14 @@ class StudentController extends Controller {
     
     public function register($topicId) {
         $userId = $this->checkStudentSession();
+        
+        // Kiểm tra thời gian được phép đăng ký
+        $timeModel = $this->model('TimeSetting');
+        if (!$timeModel->isFeatureEnabled('topic_registration')) {
+            $_SESSION['error'] = 'Chức năng đăng ký đề tài hiện đang bị khóa hoặc chưa đến thời gian!';
+            header('Location: /PHP-CN/public/student/topics');
+            exit;
+        }
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $registrationModel = $this->model('Registration');
