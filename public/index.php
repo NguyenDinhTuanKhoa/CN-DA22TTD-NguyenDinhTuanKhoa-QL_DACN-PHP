@@ -3,6 +3,11 @@
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
     
+    // Start session ngay từ đầu
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     // Bật output buffering để tránh lỗi header
     ob_start();
     

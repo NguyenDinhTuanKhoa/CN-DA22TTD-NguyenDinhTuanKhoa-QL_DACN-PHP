@@ -1,7 +1,7 @@
 <?php include_once __DIR__ . '/../layouts/header.php'; ?>
 
 <div class="d-flex">
-    <?php include_once __DIR__ . '/../layouts/student_sidebar.php'; ?>
+    <?php include_once __DIR__ . '/../layouts/teacher_sidebar.php'; ?>
     
     <div class="main-content flex-grow-1 p-4">
         <div class="container-fluid">
@@ -14,23 +14,25 @@
                 </div>
             <?php endif; ?>
             
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
+            
             <div class="row">
                 <div class="col-md-8">
                     <div class="card">
-                        <div class="card-header bg-primary text-white">
+                        <div class="card-header bg-success text-white">
                             <h5 class="mb-0"><i class="bi bi-person-fill"></i> Cập nhật thông tin</h5>
                         </div>
                         <div class="card-body">
-                            <form method="POST" action="/PHP-CN/public/student/updateProfile">
+                            <form method="POST" action="/public/teacher/updateProfile">
                                 <div class="mb-3">
-                                    <label class="form-label">Tên đăng nhập</label>
+                                    <label class="form-label">Mã giảng viên</label>
                                     <input type="text" class="form-control" value="<?= $data['user']['username'] ?>" disabled>
-                                    <small class="text-muted">Không thể thay đổi tên đăng nhập</small>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">Mã sinh viên</label>
-                                    <input type="text" class="form-control" value="<?= $data['user']['student_code'] ?>" disabled>
+                                    <small class="text-muted">Không thể thay đổi mã giảng viên</small>
                                 </div>
                                 
                                 <div class="mb-3">
@@ -48,10 +50,10 @@
                                     <input type="tel" name="phone" class="form-control" value="<?= $data['user']['phone'] ?? '' ?>" placeholder="0123456789">
                                 </div>
                                 
-                                <input type="hidden" name="role" value="<?= $data['user']['role'] ?>">
-                                <input type="hidden" name="student_code" value="<?= $data['user']['student_code'] ?>">
+                                <input type="hidden" name="role" value="teacher">
+                                <input type="hidden" name="student_code" value="<?= $data['user']['student_code'] ?? $data['user']['username'] ?>">
                                 
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-success">
                                     <i class="bi bi-save"></i> Cập nhật thông tin
                                 </button>
                             </form>
@@ -65,8 +67,10 @@
                             <h5 class="mb-0"><i class="bi bi-info-circle-fill"></i> Thông tin tài khoản</h5>
                         </div>
                         <div class="card-body">
-                            <p><strong>Vai trò:</strong> <span class="badge bg-primary">Sinh viên</span></p>
+                            <p><strong>Vai trò:</strong> <span class="badge bg-success">Giảng viên</span></p>
                             <p><strong>Ngày tạo:</strong> <?= date('d/m/Y', strtotime($data['user']['created_at'])) ?></p>
+                            <p><strong>Số đề tài:</strong> <span class="badge bg-primary"><?= $data['topic_count'] ?? 0 ?></span></p>
+                            <p><strong>Sinh viên hướng dẫn:</strong> <span class="badge bg-info"><?= $data['student_count'] ?? 0 ?></span></p>
                         </div>
                     </div>
                     
@@ -76,7 +80,7 @@
                             <h5 class="mb-0"><i class="bi bi-key-fill"></i> Đổi mật khẩu</h5>
                         </div>
                         <div class="card-body">
-                            <form method="POST" action="/public/student/changePassword" id="changePasswordForm">
+                            <form method="POST" action="/public/teacher/changePassword" id="changePasswordForm">
                                 <div class="mb-3">
                                     <label class="form-label">Mật khẩu hiện tại <span class="text-danger">*</span></label>
                                     <input type="password" name="current_password" class="form-control" required>

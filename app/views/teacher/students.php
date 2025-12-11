@@ -56,35 +56,6 @@
                                             </a>
                                         </td>
                                     </tr>
-                                    
-                                    <!-- Modal thông báo -->
-                                    <div class="modal fade" id="notifyModal<?= $reg['registration_id'] ?>" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Gửi thông báo đến <?= htmlspecialchars($reg['student_name']) ?></h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <form method="POST" action="/PHP-CN/public/teacher/sendNotification">
-                                                    <div class="modal-body">
-                                                        <input type="hidden" name="student_id" value="<?= $reg['student_id'] ?>">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Tiêu đề</label>
-                                                            <input type="text" name="title" class="form-control" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Nội dung</label>
-                                                            <textarea name="content" class="form-control" rows="4" required></textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                        <button type="submit" class="btn btn-primary">Gửi thông báo</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </tbody>
@@ -95,5 +66,42 @@
         </div>
     </div>
 </div>
+
+<!-- Modals thông báo -->
+<?php if (!empty($data['registrations'])): ?>
+    <?php foreach ($data['registrations'] as $reg): ?>
+        <div class="modal fade" id="notifyModal<?= $reg['registration_id'] ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Gửi thông báo đến <?= htmlspecialchars($reg['student_name']) ?></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="POST" action="/PHP-CN/public/teacher/sendNotification">
+                        <div class="modal-body">
+                            <input type="hidden" name="student_id" value="<?= $reg['student_id'] ?>">
+                            <div class="mb-3">
+                                <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                                <input type="text" name="title" class="form-control" 
+                                       placeholder="Nhập tiêu đề thông báo" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nội dung <span class="text-danger">*</span></label>
+                                <textarea name="content" class="form-control" rows="4" 
+                                          placeholder="Nhập nội dung thông báo..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send-fill"></i> Gửi thông báo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>
 
 <?php include_once __DIR__ . '/../layouts/footer.php'; ?>

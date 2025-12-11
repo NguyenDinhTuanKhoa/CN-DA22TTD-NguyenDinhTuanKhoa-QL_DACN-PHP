@@ -295,7 +295,103 @@ class TeacherController extends Controller {
             $_SESSION['error'] = 'Có lỗi xảy ra khi từ chối đăng ký';
         }
         
-        header('Location: /PHP-CN/public/teacher/registrations');
+        header('Location: /public/teacher/registrations');
         exit;
+    }
+    
+    public function profile() {
+        $teacherId = $this->checkTeacherSession();
+        $userModel = $this->model('User');
+        $topicModel = $this->model('Topic');
+        $registrationModel = $this->model('Registration');
+        
+        // Đếm số đề tài và sinh viên
+        $topics = $topicModel->getByTeacherId($teacherId);
+        $registrations = $registrationModel->getByTeacherId($teacherId);
+        $approvedStudents = array_filter($registrations, fn($r) => $r['status'] === 'approved');
+        
+        $data = [
+            'title' => 'Thông tin cá nhân',
+            'user' => $userModel->getById($teacherId),
+            'topic_count' => count($topics),
+            'student_count' => count($approvedStudents)
+        ];
+        
+        $this->view('teacher/profile', $data);
+    }
+    
+    public function updateProfile() {
+        $teacherId = $this->checkTeacherSession();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userModel = $this->model('User');
+            $result = $userModel->update($teacherId, $_POST);
+            
+            if ($result) {
+                $_SESSION['success'] = 'Cập nhật thông tin thành công!';
+                $_SESSION['full_name'] = $_POST['full_name'];
+            } else {
+                $_SESSION['error'] = 'Cập nhật thất bại.';
+            }
+            header('Location: /public/teacher/profile');
+            exit;
+        }
+    }
+    
+    public function changePassword() {
+        $teacherId = $this->checkTeacherSession();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $currentPassword = $_POST['current_password'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+            
+            if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+                $_SESSION['error'] = 'Vui lòng điền đầy đủ thông tin!';
+                header('Location: /public/teacher/profile');
+                exit;
+            }
+            
+            if ($newPassword !== $confirmPassword) {
+                $_SESSION['error'] = 'Mật khẩu xác nhận không khớp!';
+                header('Location: /public/teacher/profile');
+                exit;
+            }
+            
+            if (strlen($newPassword) < 6) {
+                $_SESSION['error'] = 'Mật khẩu mới phải có ít nhất 6 ký tự!';
+                header('Location: /public/teacher/profile');
+                exit;
+            }
+            
+            $userModel = $this->model('User');
+            $user = $userModel->getById($teacherId);
+            
+            // Kiểm tra mật khẩu hiện tại
+            $passwordMatch = false;
+            if ($currentPassword === $user['password']) {
+                $passwordMatch = true;
+            } elseif (password_verify($currentPassword, $user['password'])) {
+                $passwordMatch = true;
+            }
+            
+            if (!$passwordMatch) {
+                $_SESSION['error'] = 'Mật khẩu hiện tại không đúng!';
+                header('Location: /public/teacher/profile');
+                exit;
+            }
+            
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            $result = $userModel->updatePassword($teacherId, $hashedPassword);
+            
+            if ($result) {
+                $_SESSION['success'] = 'Đổi mật khẩu thành công!';
+            } else {
+                $_SESSION['error'] = 'Đổi mật khẩu thất bại!';
+            }
+            
+            header('Location: /public/teacher/profile');
+            exit;
+        }
     }
 }

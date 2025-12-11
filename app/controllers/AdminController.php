@@ -278,7 +278,93 @@ class AdminController extends Controller {
             $_SESSION['error'] = 'Có lỗi xảy ra!';
         }
         
-        header('Location: /PHP-CN/public/admin/topics');
+        header('Location: ' . BASE_URL . '/admin/topics');
+        exit;
+    }
+    
+    // ========== QUẢN LÝ HỌC KỲ ==========
+    
+    public function semesters() {
+        $this->checkAdminSession();
+        $semesterModel = $this->model('Semester');
+        
+        // Tạo bảng nếu chưa có
+        $semesterModel->createTable();
+        
+        $data = [
+            'title' => 'Quản lý Học kỳ',
+            'semesters' => $semesterModel->getAll(),
+            'active_semester' => $semesterModel->getActive()
+        ];
+        
+        $this->view('admin/semesters', $data);
+    }
+    
+    public function createSemester() {
+        $this->checkAdminSession();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $semesterModel = $this->model('Semester');
+            $result = $semesterModel->create($_POST);
+            
+            if ($result) {
+                $_SESSION['success'] = 'Tạo học kỳ thành công!';
+            } else {
+                $_SESSION['error'] = 'Có lỗi xảy ra khi tạo học kỳ!';
+            }
+            
+            header('Location: ' . BASE_URL . '/admin/semesters');
+            exit;
+        }
+    }
+    
+    public function updateSemester($id) {
+        $this->checkAdminSession();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $semesterModel = $this->model('Semester');
+            $result = $semesterModel->update($id, $_POST);
+            
+            if ($result) {
+                $_SESSION['success'] = 'Cập nhật học kỳ thành công!';
+            } else {
+                $_SESSION['error'] = 'Có lỗi xảy ra khi cập nhật!';
+            }
+            
+            header('Location: ' . BASE_URL . '/admin/semesters');
+            exit;
+        }
+    }
+    
+    public function deleteSemester($id) {
+        $this->checkAdminSession();
+        $semesterModel = $this->model('Semester');
+        
+        $result = $semesterModel->delete($id);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Xóa học kỳ thành công!';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra khi xóa!';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/semesters');
+        exit;
+    }
+    
+    public function activateSemester($id) {
+        $this->checkAdminSession();
+        $semesterModel = $this->model('Semester');
+        
+        $result = $semesterModel->activate($id);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Đã kích hoạt học kỳ!';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra!';
+        }
+        
+        header('Location: ' . BASE_URL . '/admin/semesters');
         exit;
     }
 }

@@ -5,6 +5,7 @@
 # Logs
 *.log
 debug.log
+error.log
 
 # Environment
 .env
@@ -13,6 +14,21 @@ debug.log
 *.tmp
 *.temp
 
+# Test files
+test*.php
+*test.php
+check*.php
+debug*.php
+simple*.php
+
 # OS files
 .DS_Store
 Thumbs.db
+
+# Empty folders
+src/
+thesis/
+
+# Database backups
+*.sql.backup
+*.sql.bak

@@ -171,7 +171,66 @@ class StudentController extends Controller {
             } else {
                 $_SESSION['error'] = 'Cập nhật thất bại.';
             }
-            header('Location: /PHP-CN/public/student/profile');
+            header('Location: /public/student/profile');
+            exit;
+        }
+    }
+    
+    public function changePassword() {
+        $userId = $this->checkStudentSession();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $currentPassword = $_POST['current_password'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+            
+            // Validate
+            if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+                $_SESSION['error'] = 'Vui lòng điền đầy đủ thông tin!';
+                header('Location: /public/student/profile');
+                exit;
+            }
+            
+            if ($newPassword !== $confirmPassword) {
+                $_SESSION['error'] = 'Mật khẩu xác nhận không khớp!';
+                header('Location: /public/student/profile');
+                exit;
+            }
+            
+            if (strlen($newPassword) < 6) {
+                $_SESSION['error'] = 'Mật khẩu mới phải có ít nhất 6 ký tự!';
+                header('Location: /public/student/profile');
+                exit;
+            }
+            
+            $userModel = $this->model('User');
+            $user = $userModel->getById($userId);
+            
+            // Kiểm tra mật khẩu hiện tại (hỗ trợ cả plain text và hash)
+            $passwordMatch = false;
+            if ($currentPassword === $user['password']) {
+                $passwordMatch = true;
+            } elseif (password_verify($currentPassword, $user['password'])) {
+                $passwordMatch = true;
+            }
+            
+            if (!$passwordMatch) {
+                $_SESSION['error'] = 'Mật khẩu hiện tại không đúng!';
+                header('Location: /public/student/profile');
+                exit;
+            }
+            
+            // Cập nhật mật khẩu mới (hash)
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            $result = $userModel->updatePassword($userId, $hashedPassword);
+            
+            if ($result) {
+                $_SESSION['success'] = 'Đổi mật khẩu thành công!';
+            } else {
+                $_SESSION['error'] = 'Đổi mật khẩu thất bại!';
+            }
+            
+            header('Location: /public/student/profile');
             exit;
         }
     }

@@ -42,10 +42,37 @@
                 </div>
             <?php endif; ?>
             
+            <!-- Thanh tìm kiếm -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" id="searchTopic" placeholder="Tìm theo tên đề tài...">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="searchTeacher" placeholder="Tìm theo giảng viên...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterStatus">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="available">Còn chỗ</option>
+                                <option value="full">Đã đủ</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover" id="topicsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>STT</th>
@@ -172,5 +199,50 @@
         </div>
     <?php endforeach; ?>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchTopic = document.getElementById('searchTopic');
+    const searchTeacher = document.getElementById('searchTeacher');
+    const filterStatus = document.getElementById('filterStatus');
+    const table = document.getElementById('topicsTable');
+    const rows = table.querySelectorAll('tbody tr');
+    
+    function filterTable() {
+        const topicValue = searchTopic.value.toLowerCase();
+        const teacherValue = searchTeacher.value.toLowerCase();
+        const statusValue = filterStatus.value;
+        
+        rows.forEach(row => {
+            const topicName = row.cells[1]?.textContent.toLowerCase() || '';
+            const teacherName = row.cells[2]?.textContent.toLowerCase() || '';
+            const slots = row.cells[5]?.textContent || '';
+            
+            // Parse slots (e.g., "1/2")
+            const slotMatch = slots.match(/(\d+)\/(\d+)/);
+            let isAvailable = true;
+            if (slotMatch) {
+                isAvailable = parseInt(slotMatch[1]) < parseInt(slotMatch[2]);
+            }
+            
+            const matchTopic = topicName.includes(topicValue);
+            const matchTeacher = teacherName.includes(teacherValue);
+            let matchStatus = true;
+            
+            if (statusValue === 'available') {
+                matchStatus = isAvailable;
+            } else if (statusValue === 'full') {
+                matchStatus = !isAvailable;
+            }
+            
+            row.style.display = (matchTopic && matchTeacher && matchStatus) ? '' : 'none';
+        });
+    }
+    
+    searchTopic.addEventListener('input', filterTable);
+    searchTeacher.addEventListener('input', filterTable);
+    filterStatus.addEventListener('change', filterTable);
+});
+</script>
 
 <?php include_once __DIR__ . '/../layouts/footer.php'; ?>

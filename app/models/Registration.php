@@ -32,8 +32,32 @@ class Registration {
     }
     
     public function updateStatus($regId, $status) {
-        $stmt = $this->db->prepare("UPDATE registrations SET status = ? WHERE registration_id = ?");
-        return $stmt->execute([$status, $regId]);
+        $stmt = $this->db->prepare("UPDATE registrations SET status = ?, approved_at = NOW() WHERE registration_id = ?");
+        $result = $stmt->execute([$status, $regId]);
+        
+        // Thêm sinh viên vào nhóm chat chung khi duyệt đăng ký
+        if ($result && $status === 'approved') {
+            try {
+                // Lấy thông tin registration
+                $reg = $this->getByRegistrationId($regId);
+                if ($reg) {
+                    // Lấy teacher_id từ topic
+                    $stmt = $this->db->prepare("SELECT teacher_id FROM topics WHERE topic_id = ?");
+                    $stmt->execute([$reg['topic_id']]);
+                    $topic = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($topic) {
+                        require_once '../app/models/Chat.php';
+                        $chatModel = new Chat();
+                        $chatModel->addStudentToTeacherGroup($topic['teacher_id'], $reg['student_id']);
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Error adding student to chat group: " . $e->getMessage());
+            }
+        }
+        
+        return $result;
     }
     
     public function deleteRegistration($regId) {

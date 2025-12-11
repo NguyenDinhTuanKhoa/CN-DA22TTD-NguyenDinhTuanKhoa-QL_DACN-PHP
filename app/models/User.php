@@ -12,7 +12,7 @@ class User {
     }
     
     public function getById($id) {
-        $stmt = $this->db->prepare("SELECT user_id, username, full_name, email, role, student_code, phone, created_at FROM users WHERE user_id = ?");
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE user_id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -70,6 +70,17 @@ class User {
     public function delete($id) {
         $stmt = $this->db->prepare("DELETE FROM users WHERE user_id = ?");
         return $stmt->execute([$id]);
+    }
+    
+    public function updatePassword($id, $hashedPassword) {
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE user_id = ?");
+        return $stmt->execute([$hashedPassword, $id]);
+    }
+    
+    public function getByIdWithPassword($id) {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE user_id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
     public function countByRole($role) {
