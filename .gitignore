@@ -27,7 +27,12 @@ Thumbs.db
 
 # Empty folders
 src/
-thesis/
+
+# Thesis folder - allow Word files
+!thesis/
+thesis/*
+!thesis/*.docx
+!thesis/README.md
 
 # Database backups
 *.sql.backup
